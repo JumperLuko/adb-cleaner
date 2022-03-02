@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#? https://github.com/JumperLuko/dialog-output
+
 #! Variables with useful results
 #! $DIALOG_RESULT
 #! $DIALOG_CODE
