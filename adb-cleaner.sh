@@ -3,12 +3,17 @@
 if [ "$dialog_output" == "" ] || ! [ -e "$dialog_output" ]; then
 	if [ -e "/usr/bin/dialog-output" ]; then
     	dialog_output="/usr/bin/dialog-output"
-	elif [ -e "./dialog-output" ]; then
-		dialog_output="./dialog-output"
+	elif [ -e "./dialog-output.sh" ]; then
+		dialog_output="./dialog-output.sh"
 	else
 		echo "dialog-output not found"
 		exit
 	fi
+fi
+
+if ! [ -e "/usr/bin/adb" ]; then
+	echo "adb not found"
+	exit
 fi
 
 chooseOption(){
