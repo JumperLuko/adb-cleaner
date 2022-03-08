@@ -1,0 +1,2 @@
+com.google.android.gm
+com.google.android.calculator

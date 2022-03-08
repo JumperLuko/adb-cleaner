@@ -17,12 +17,15 @@ if ! [ -e "/usr/bin/adb" ]; then
 fi
 
 chooseOption(){
-. $dialog_output --backtitle "ADB package cleaner" --default-item $1 --menu "Choose the option" 12 45 25\
+. $dialog_output --backtitle "ADB package cleaner" --default-item $1 --menu "Choose the option" 15 45 25\
  1 "List ADB devices"\
  2 "Search Packages names"\
- 3 "Disable app from user 0"\
- 4 "Deny run in background"\
+ 3 "Search running app"\
+ 4 "Disable app from user 0"\
+ 5 "Deny run in background"\
+ 6 "Stop process"\
  0 "Exit"
+#  7 "Stop process from list file"\
 option=$DIALOG_RESULT
 optionCode=$DIALOG_CODE
 }
@@ -47,6 +50,11 @@ adbSearch(){
 	adb shell pm list packages -e | grep "$DIALOG_RESULT"
 }
 
+adbSearchProcess(){
+	. $dialog_output --inputbox "Search running app by package name:" 10 40
+	adb shell ps | grep "$DIALOG_RESULT" | awk '{print $9}'
+}
+
 adbDisable(){
 	optionName="adb disable app user 0"
 	. $dialog_output --inputbox "Disable app user 0 by package name:" 10 40
@@ -61,6 +69,31 @@ adbDenyBackground(){
 	adb shell appops set $DIALOG_RESULT RUN_IN_BACKGROUND deny
 }
 
+adbForceStop(){
+	. $dialog_output --inputbox "Stop process app by package name:" 10 40
+	adb shell am force-stop $DIALOG_RESULT
+}
+
+
+adbForceStopList(){
+	. $dialog_output --inputbox "Stop process app by package name, say the file with the packages:" 11 40
+
+	if [ "$DIALOG_RESULT" == "" ]; then
+		DIALOG_RESULT="list.txt"
+	fi
+
+	# while true; do
+		# cat $DIALOG_RESULT | read line
+		# cat $DIALOG_RESULT |awk '{print "Line contents are: "$0}'
+	cat $DIALOG_RESULT | while read line; do
+		echo item: $line
+		adb shell am force-stop $line # > $variable
+		#? The loop just stops, maybe
+		# if [ "$variable" != "" ] ; then echo "error"; fi
+		# sleep 1
+	done # < $DIALOG_RESULT
+}
+
 while [ "$option" != 0 ] && [ "$optionCode" == 0 ]; do
 	clear
     case $option in
@@ -70,10 +103,16 @@ while [ "$option" != 0 ] && [ "$optionCode" == 0 ]; do
             adbDevices;;
         2)
             adbSearch;;
-        3)
-            adbDisable;;
+		3)
+			adbSearchProcess;;
         4)
+            adbDisable;;
+        5)
             adbDenyBackground;;
+		6)
+			adbForceStop;;
+		7)
+			adbForceStopList;;
 		*)
 			echo "Error";;
     esac
