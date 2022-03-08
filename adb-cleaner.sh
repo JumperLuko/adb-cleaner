@@ -17,14 +17,15 @@ if ! [ -e "/usr/bin/adb" ]; then
 fi
 
 chooseOption(){
-. $dialog_output --backtitle "ADB package cleaner" --default-item $1 --menu "Choose the option" 15 45 25\
+. $dialog_output --backtitle "ADB package cleaner" --default-item $1 --menu "Choose the option" 17 50 25\
  1 "List ADB devices"\
  2 "Search Packages names"\
  3 "Search running app"\
  4 "Disable app from user 0"\
  5 "Deny run in background"\
- 6 "Stop process"\
- 7 "Stop process from list file"\
+ 6 "Deny run in background from list file"\
+ 7 "Stop process"\
+ 8 "Stop process from list file"\
  0 "Exit"
 option=$DIALOG_RESULT
 optionCode=$DIALOG_CODE
@@ -69,6 +70,23 @@ adbDenyBackground(){
 	adb shell appops set $DIALOG_RESULT RUN_IN_BACKGROUND deny
 }
 
+adbDenyBackgroundList(){
+	. $dialog_output --title "Stop background app by package name" --fselect "" 8 50
+
+	if [ "$DIALOG_RESULT" == "" ]; then
+		DIALOG_RESULT="list.txt"
+	fi
+
+	for (( n=`cat $DIALOG_RESULT | wc -l`; n>0; n-- )); do
+		line=`sed -n "$n"p "$DIALOG_RESULT"`
+		echo $line
+		adb shell appops set $line RUN_IN_BACKGROUND deny 2> /dev/null
+		# if [ "$adbOutput" != "" ] ; then echo "error"; fi
+		# else echo $line
+	done
+	unset line
+}
+
 adbForceStop(){
 	. $dialog_output --inputbox "Stop process app by package name:" 10 40
 	adb shell am force-stop $DIALOG_RESULT
@@ -76,7 +94,7 @@ adbForceStop(){
 
 
 adbForceStopList(){
-	. $dialog_output --inputbox "Stop process app by package name, say the file with the packages:" 11 40
+	. $dialog_output --title "Stop process app by package name" --fselect "" 8 50
 
 	if [ "$DIALOG_RESULT" == "" ]; then
 		DIALOG_RESULT="list.txt"
@@ -108,8 +126,10 @@ while [ "$option" != 0 ] && [ "$optionCode" == 0 ]; do
         5)
             adbDenyBackground;;
 		6)
-			adbForceStop;;
+			adbDenyBackgroundList;;
 		7)
+			adbForceStop;;
+		8)
 			adbForceStopList;;
 		*)
 			echo "Error";;

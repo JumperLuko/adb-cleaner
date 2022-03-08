@@ -1,3 +1,2 @@
-com.google.android.gm
 com.google.android.calculatorr
 com.google.android.calculator
