@@ -24,8 +24,8 @@ chooseOption(){
  4 "Disable app from user 0"\
  5 "Deny run in background"\
  6 "Stop process"\
+ 7 "Stop process from list file"\
  0 "Exit"
-#  7 "Stop process from list file"\
 option=$DIALOG_RESULT
 optionCode=$DIALOG_CODE
 }
@@ -82,16 +82,14 @@ adbForceStopList(){
 		DIALOG_RESULT="list.txt"
 	fi
 
-	# while true; do
-		# cat $DIALOG_RESULT | read line
-		# cat $DIALOG_RESULT |awk '{print "Line contents are: "$0}'
-	cat $DIALOG_RESULT | while read line; do
-		echo item: $line
-		adb shell am force-stop $line # > $variable
-		#? The loop just stops, maybe
-		# if [ "$variable" != "" ] ; then echo "error"; fi
-		# sleep 1
-	done # < $DIALOG_RESULT
+	for (( n=`cat $DIALOG_RESULT | wc -l`; n>0; n-- )); do
+		line=`sed -n "$n"p "$DIALOG_RESULT"`
+		echo $line
+		adb shell am force-stop $line 2> /dev/null
+		# if [ "$adbOutput" != "" ] ; then echo "error"; fi
+		# else echo $line
+	done
+	unset line
 }
 
 while [ "$option" != 0 ] && [ "$optionCode" == 0 ]; do
