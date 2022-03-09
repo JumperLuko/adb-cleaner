@@ -40,38 +40,40 @@ again(){
 
 adbDevices(){
 	optionName="adb devices"
-	echo -e "\n"
+	clear
 	adb devices
 }
 
 adbSearch(){
 	optionName="adb Search"
 	. $dialog_output --inputbox "Search by package name:" 10 40
-	echo -e "\n"
+	clear
 	adb shell pm list packages -e | grep "$DIALOG_RESULT"
 }
 
 adbSearchProcess(){
 	. $dialog_output --inputbox "Search running app by package name:" 10 40
+	clear
 	adb shell ps | grep "$DIALOG_RESULT" | awk '{print $9}'
 }
 
 adbDisable(){
 	optionName="adb disable app user 0"
 	. $dialog_output --inputbox "Disable app user 0 by package name:" 10 40
-	echo -e "\n"
+	clear
 	adb shell pm uninstall -k --user 0 $DIALOG_RESULT
 }
 
 adbDenyBackground(){
 	optionName="adb stop app background"
 	. $dialog_output --inputbox "Stop background app by package name:" 10 40
-	echo -e "\n"
+	clear
 	adb shell appops set $DIALOG_RESULT RUN_IN_BACKGROUND deny
 }
 
 adbDenyBackgroundList(){
 	. $dialog_output --title "Stop background app by package name" --fselect "" 8 50
+	clear
 
 	if [ "$DIALOG_RESULT" == "" ]; then
 		DIALOG_RESULT="list.txt"
@@ -89,12 +91,14 @@ adbDenyBackgroundList(){
 
 adbForceStop(){
 	. $dialog_output --inputbox "Stop process app by package name:" 10 40
+	clear
 	adb shell am force-stop $DIALOG_RESULT
 }
 
 
 adbForceStopList(){
 	. $dialog_output --title "Stop process app by package name" --fselect "" 8 50
+	clear
 
 	if [ "$DIALOG_RESULT" == "" ]; then
 		DIALOG_RESULT="list.txt"
